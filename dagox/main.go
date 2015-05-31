@@ -11,13 +11,28 @@ import (
 
 // the WPC message structure
 type WpcMessage struct {
-	ObjId     string `json:"objId"`
-	Id        string `json:"id"`
-	Timestamp string `json:"ts"`
-	ObjType   string `json:"type"`
-	Company   string `json:"comp"`
-	Message   string `json:"message"`
-	Movement  string `json:"mov"`
+	ObjId        string         `json:"objId"`
+	Id           string         `json:"id"`
+	Timestamp    string         `json:"ts"`
+	ObjType      string         `json:"type"`
+	Company      string         `json:"comp"`
+	Message      string         `json:"message"`
+	Movement     string         `json:"mov"`
+}
+
+type WpcMessageContent struct {
+	IdExt        string         `json:"id_Ext"`
+	Id           string         `json:"id"`
+	ContainerId  string         `json:"entryContainerID"`
+	Movement     string         `json:"movement"`
+	CoreAttribs  []Attrib       `json:"coreAttribs"`
+}
+
+type Attrib struct {
+	Id           string         `json:"id"`
+	Type         string         `json:"type"`
+	Value        string         `json:"value"`
+	Children     []Attrib 	    `json:"children"`
 }
 
 // a lookup structure
@@ -88,6 +103,22 @@ func startWatcher(path string) {
 	<-done
 }
 
+func process(wpcMessage WpcMessage) {
+	switch  wpcMessage.ObjType {
+	case typeLookup:
+		log.Println("Es una [Lookup] :" + wpcMessage.Message)
+		messageContent := wpcMessage.Message
+		wpcMessageContent, err := unmarshalMessageContent(messageContent)
+		if err == nil {
+			log.Printf("processed messageContent.idExt: " + wpcMessageContent.IdExt)
+		}
+	case typeReferenciaSuperEspaña:
+		log.Println("Es una [Referencia Super España]")
+	default:
+		log.Println("Es un tipo no manejado por la plataforma")
+	}
+}
+
 func unmarshal(filename string) (ret WpcMessage, err error) {
 	wpcMsg   := &WpcMessage{}
 	dat, err := ioutil.ReadFile(filename)
@@ -99,27 +130,16 @@ func unmarshal(filename string) (ret WpcMessage, err error) {
 	return *wpcMsg, nil
 }
 
-func unmarshalLookup(wpcMessage WpcMessage) (Lookup, error) {
-	lookup := &Lookup{}
-	json.Unmarshal([]byte(wpcMessage.Message), &lookup)
-	return *lookup,nil
-}
+//func unmarshalLookup(wpcMessage WpcMessage) (Lookup, error) {
+//	lookup := &Lookup{}
+//	json.Unmarshal([]byte(wpcMessage.Message), &lookup)
+//	return *lookup,nil
+//}
 
-func process(wpcMessage WpcMessage) {
-	switch  wpcMessage.ObjType {
-	case typeLookup:
-		log.Println("Es una [Lookup]")
-		lookup, err := unmarshalLookup(wpcMessage)
-		if err == nil {
-			// processLookup
-			log.Printf("processed lookup.id: " + lookup.Id)
-			log.Printf("processed lookup.type: " + lookup.LookupType)
-		}
-	case typeReferenciaSuperEspaña:
-		log.Println("Es una [Referencia Super España]")
-	default:
-		log.Println("Es un tipo no manejado por la plataforma")
-	}
+func unmarshalMessageContent(messageContent string) {
+	content := &WpcMessageContent{}
+	json.Unmarshal([]byte(messageContent), &content)
+	log.Println("msg content " + content.IdExt)
 }
 
 func printTitle() {
