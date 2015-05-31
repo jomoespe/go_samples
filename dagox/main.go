@@ -36,7 +36,7 @@ type Attrib struct {
 }
 
 // a lookup structure
-//    about JSON mapping: https://eager.io/blog/go-and-json/    OK!
+//    about JSON mapping: https://eager.io/blog/go-and-json/                                    OK!
 //                        http://stackoverflow.com/questions/23798283/golang-unmarshal-json     OK!
 //                        http://stackoverflow.com/questions/21268000/unmarshaling-nested-json-objects-in-golang          
 type Lookup struct {
@@ -44,8 +44,8 @@ type Lookup struct {
 	ContainerId  string            `json:"entryContainerID"`
 	Id           string            `json:"id"`
 	LookupType   string            `json:"coreAttribs[0].id"`
-//	Description  string            `json:"id_Ext"`
-//	Descriptions map[string]string `json:"id_Ext"`
+	Description  string            `json:"???"`
+	Descriptions map[string]string `json:"???"`
 }
 
 // the WPC message types
@@ -64,9 +64,8 @@ func main() {
 		return
 	}
 
-	//fmt.Printf("Hello %s!\n", Fullname("Gordon", "the Gopher"))
 	log.Println("Starting....")
-	startWatcher(*inputArg /*"/var/dabox/wpc"*/)
+	startWatcher(*inputArg)
 	log.Println("Starded")
 }
 
@@ -87,6 +86,7 @@ func startWatcher(path string) {
 				if event.Op&fsnotify.Write == fsnotify.Write {
 					log.Println("Modified file: " + event.Name)
 					if wpcMsg, err := unmarshal(event.Name); err == nil {
+						log.Println(wpcMsg)
 						process(wpcMsg)
 					}
 				}
@@ -107,11 +107,11 @@ func process(wpcMessage WpcMessage) {
 	switch  wpcMessage.ObjType {
 	case typeLookup:
 		log.Println("Es una [Lookup] :" + wpcMessage.Message)
-		messageContent := wpcMessage.Message
-		wpcMessageContent, err := unmarshalMessageContent(messageContent)
-		if err == nil {
-			log.Printf("processed messageContent.idExt: " + wpcMessageContent.IdExt)
-		}
+//		messageContent := wpcMessage.Message
+//		wpcMessageContent, err := unmarshalMessageContent(messageContent)
+//		if err == nil {
+//			log.Printf("processed messageContent.idExt: " + wpcMessageContent.IdExt)
+//		}
 	case typeReferenciaSuperEspaña:
 		log.Println("Es una [Referencia Super España]")
 	default:
@@ -130,11 +130,11 @@ func unmarshal(filename string) (ret WpcMessage, err error) {
 	return *wpcMsg, nil
 }
 
-//func unmarshalLookup(wpcMessage WpcMessage) (Lookup, error) {
-//	lookup := &Lookup{}
-//	json.Unmarshal([]byte(wpcMessage.Message), &lookup)
-//	return *lookup,nil
-//}
+func unmarshalLookup(wpcMessage WpcMessage) (Lookup, error) {
+	lookup := &Lookup{}
+	json.Unmarshal([]byte(wpcMessage.Message), &lookup)
+	return *lookup,nil
+}
 
 func unmarshalMessageContent(messageContent string) {
 	content := &WpcMessageContent{}
@@ -143,22 +143,22 @@ func unmarshalMessageContent(messageContent string) {
 }
 
 func printTitle() {
-	fmt.Println("                         ,---,                                   ");
-	fmt.Println("                      ,`--.' |                                   ");
-	fmt.Println("    ,---,             |   :  :    ,---,.                         ");
-	fmt.Println("  .'  .' `\\           |   |  '  ,'  .'  \\                      ");
-	fmt.Println(",---.'     \\          '   :  |,---.' .' |   ,---.               ");
-	fmt.Println("|   |  .`\\  |         ;   |.' |   |  |: |  '   ,'\\ ,--,  ,--,  ");                                                               
-	fmt.Println(":   : |  '  |  ,--.--.'---'   :   :  :  / /   /   ||'. \\/ .`|   ");
-	fmt.Println("|   ' '  ;  : /       \\       :   |    ; .   ; ,. :'  \\/  / ;  ");
-	fmt.Println("'   | ;  .  |.--.  .-. |      |   :     '    | |: : \\  \\.' /   ");
-	fmt.Println("|   | :  |  ' \\__\\/: . .      |   |   . |'   | .; :  \\  ;  ;  ");
-	fmt.Println("'   : | /  ;  ,\" .--.; |      '   :  '; ||   :    | / \\  \\  \\");
-	fmt.Println("|   | '` ,/  /  /  ,.  |      |   |  | ;  \\   \\  /./__;   ;  \\");
-	fmt.Println(";   :  .'   ;  :   .'   \\     |   :   /    `----' |   :/\\  \\ ;");
-	fmt.Println("|   ,.'     |  ,     .-./     |   | ,'            `---'  `--`    ");
-	fmt.Println("'---'        `--`---'         `----'                        \n\n");
-	fmt.Println("Da'box: The WPC - New CatalogBrowsing API integration tool.\n")
+	fmt.Println("                         ,---,                                   ")
+	fmt.Println("                      ,`--.' |                                   ")
+	fmt.Println("    ,---,             |   :  :    ,---,.                         ")
+	fmt.Println("  .'  .' `\\           |   |  '  ,'  .'  \\                      ")
+	fmt.Println(",---.'     \\          '   :  |,---.' .' |   ,---.               ")
+	fmt.Println("|   |  .`\\  |         ;   |.' |   |  |: |  '   ,'\\ ,--,  ,--,  ")                                                               
+	fmt.Println(":   : |  '  |  ,--.--.'---'   :   :  :  / /   /   ||'. \\/ .`|   ")
+	fmt.Println("|   ' '  ;  : /       \\       :   |    ; .   ; ,. :'  \\/  / ;  ")
+	fmt.Println("'   | ;  .  |.--.  .-. |      |   :     '    | |: : \\  \\.' /   ")
+	fmt.Println("|   | :  |  ' \\__\\/: . .      |   |   . |'   | .; :  \\  ;  ;  ")
+	fmt.Println("'   : | /  ;  ,\" .--.; |      '   :  '; ||   :    | / \\  \\  \\")
+	fmt.Println("|   | '` ,/  /  /  ,.  |      |   |  | ;  \\   \\  /./__;   ;  \\")
+	fmt.Println(";   :  .'   ;  :   .'   \\     |   :   /    `----' |   :/\\  \\ ;")
+	fmt.Println("|   ,.'     |  ,     .-./     |   | ,'            `---'  `--`    ")
+	fmt.Println("'---'        `--`---'         `----'                             ")
+	fmt.Println("\n\nDa'box: The WPC - New CatalogBrowsing API integration tool.\n")
 }
 
 func printHelp() {
@@ -170,17 +170,14 @@ func printHelp() {
 	fmt.Println("    -help: Show this message.")
 }
 
-func print(wpcMessage WpcMessage) {
-	log.Println(" __ WPC Message _______________________________________")
-	//log.Printf("    wpcMessage=",          wpcMsg)
-	log.Printf("    wpcMessage.ObjId=",     wpcMessage.ObjId)
-	log.Printf("    wpcMessage.Id=",        wpcMessage.Id)
-	log.Printf("    wpcMessage.Timestamp=", wpcMessage.Timestamp)
-	log.Printf("    wpcMessage.ObjType=",   wpcMessage.ObjType)
-	log.Printf("    wpcMessage.Company=",   wpcMessage.Company)
-	log.Printf("    wpcMessage.Movement=",  wpcMessage.Movement)
-	//log.Printf("    wpcMessage.Message=",   wpcMessage.Message)
-	log.Println(" ______________________________________________________")
+func printWpcMessage(wpcMessage WpcMessage) {
+	log.Println("__ WPC Message _______________________________________")
+	log.Printf("\tObjId=%s",     wpcMessage.ObjId)
+	log.Printf("\tId=%s",        wpcMessage.Id)
+	log.Printf("\tTimestamp=%s", wpcMessage.Timestamp)
+	log.Printf("\tObjType=%s",   wpcMessage.ObjType)
+	log.Printf("\tCompany=%s",   wpcMessage.Company)
+	log.Printf("\tMovement=%s",  wpcMessage.Movement)
+	//log.Printf("\tMessage=",   wpcMessage.Message)
+	log.Println("______________________________________________________")
 }
-
-
